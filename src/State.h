@@ -1,25 +1,23 @@
 /*
-  State - Includes all functions responsible for state transitions in main state machine
+  State - Includes all functions responsible for transitions in main state machine
 */
 
+#ifndef STATE_H
+#define STATE_H
 
-/*
-  Importing libraries
-*/
+// Importing libraries
 #include <Arduino.h>
-#include <Sensors/Sensors.h>
-#include <Configuration/Config.h>
-#include <Navigation/Nav.h>
-#include <NeoPixel/NeoPixel.h>
+#include <Sensors.h>
+#include <Config.h>
+#include <NeoPixel.h>
 
 double acc_1, acc_2, acc_3, acc_4, 
        acc_5, acc_6, acc_7, acc_8, 
        acc_9, acc_avg_1, acc_avg_2, 
        acc_avg_3, acc_mov;
-       
 
 /*
-  Detect that the vehicle is ascending using a moving average
+  Detect that the vehicle is ascending using a moving average of acceleration
 */
 void ascent_detect() 
 {
@@ -61,19 +59,4 @@ void ascent_detect()
   }
 }
 
-
-/*
-  Detect that the vehicle has entered descent stage
-*/
-void descent_detect(double dt)
-{
-    if (alt_max > pos_z && pos_z >= 1) {
-      descent_time += dt;
-
-      // Put a safety 2 meters so it doesn't switch states randomly
-      if (descent_time >= 0.5) {
-        NeoPixel_yellow();
-        state++;
-      }
-    }
-}
+#endif
