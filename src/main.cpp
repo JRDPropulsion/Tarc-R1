@@ -15,20 +15,17 @@
 
 // Main file initializations
 Servo servo_z;
-Servo servo_y; 
-Servo servo_1;
 uint64_t current_time = 0;
 uint64_t previous_time = 0;
 File dataFile; // Declare a global file object
 double prevTime;
 
 /*
-  Zero out both of the servos to center the mount
+  Zero out the servo
 */
 void servo_zero() 
 {
   servo_z.write(servo_z_offset);
-  servo_y.write(servo_y_offset);
 }
 
 /*
@@ -119,6 +116,20 @@ void close_datalog()
 }
 
 /*
+  Deploy parachute
+*/
+void deploy_parachute(double baro_alt_filtered) 
+{
+  // subtract 5 meters from setpoint
+  if (baro_alt_filtered >= (alt_setpoint - 5)) 
+  {
+    servo_z.write(90);
+    NeoPixel_yellow();
+    state++;
+  }
+}
+
+/*
   Detect that the vehicle has landed
 */
 void detect_landing(double dt) 
@@ -144,10 +155,8 @@ void setup()
   NeoPixel_red();
 
   // Set outputs
-  pinMode(chip_select, OUTPUT); // Have to do this
+  pinMode(chip_select, OUTPUT);
   servo_z.attach(servo_z_pin);
-  servo_y.attach(servo_y_pin);
-  servo_1.attach(servo_1_pin);
 
   // Start serial monitor (use SerialUSB)
   SerialUSB.begin(9600);
@@ -159,7 +168,7 @@ void setup()
     return;
   }
 
-  SerialUSB.println("card initialized.");
+  SerialUSB.println("card initialized");
 
   // Check if data logging file exists and if it does, delete it
   if (SD.exists("datalog_tarc_r1.txt")) 
@@ -192,7 +201,7 @@ void loop()
   time_keeper();
   sensors_update();
 
-  // Sensor calibrartion state 0
+  // Calibrartion state 0
   if (state == 0) 
   {
     sensors_bias();
@@ -209,26 +218,19 @@ void loop()
   if (state == 2) 
   {
     sd_write();
+    deploy_parachute(baro_alt_filtered);
   }
 
   // Descent state 3
   if (state == 3) 
   {
-    servo_zero();
+    detect_landing(dt); // Timer
     sd_write(); // Still data logging!
   }
 
-  // Powered descent state 4
-  if (state == 4)
-  {
-    detect_landing(dt);
-    sd_write(); // Still data logging!
-  }
-
-  // Landed state 5
-  if (state == 5) 
+  // Landed state 4
+  if (state == 4) 
   {
     close_datalog(); // Save the file
-    servo_zero();
   }
 }

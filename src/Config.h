@@ -25,8 +25,9 @@ double dt = 0;
 int servo_z_offset = 150;
 int servo_y_offset = 110;
 
-// Gains/values
+// Setpoints
 int state = 0; // Make sure that this value is 0 before launch
 float ascent_threshold = 11.2; // DO NOT CHANGE
+float alt_setpoint = 250; // In meters
 
 #endif
