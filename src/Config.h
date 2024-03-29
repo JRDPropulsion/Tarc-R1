@@ -10,8 +10,8 @@
 
 // Pins
 int NeoPixel = 1; 
-int servo_z_pin = 5;
-int servo_y_pin = 2;
+int servo_z_pin = 2;
+int servo_y_pin = 5;
 int servo_1_pin = 0;
 int chip_select = 10;
 
@@ -22,12 +22,12 @@ double mission_time;
 double dt = 0;
 
 // Servo
-int servo_z_offset = 150;
+int servo_z_offset = 100; //using this
 int servo_y_offset = 110;
 
 // Setpoints
 int state = 0; // Make sure that this value is 0 before launch
 float ascent_threshold = 11.2; // DO NOT CHANGE
-float alt_setpoint = 250; // In meters
+float alt_setpoint = 234; // In meters (240 for last flight)
 
 #endif

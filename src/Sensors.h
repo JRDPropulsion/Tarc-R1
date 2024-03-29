@@ -47,9 +47,9 @@ void sensors_update()
   MSXX.doBaro(true); //Calculate pressure and temperature, boolean for altitude estimation from sea level 
 
   // Body frame acceleration (relative to orientation of the sensor)
-  body_acc_x = accel.getAccelX_mss();
+  body_acc_x = accel.getAccelZ_mss();
   body_acc_y = accel.getAccelY_mss();
-  body_acc_z = accel.getAccelZ_mss(); 
+  body_acc_z = accel.getAccelX_mss(); 
 
   // Calibrated z-axis acceleration
   accel_z_cal = (accel.getAccelZ_mss() - accel_bais_z) + accel_z_offset; // Calibrated z gyro measurement

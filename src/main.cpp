@@ -121,12 +121,12 @@ void close_datalog()
 void deploy_parachute(double baro_alt_filtered) 
 {
   // subtract 5 meters from setpoint
-  if (baro_alt_filtered >= (alt_setpoint - 5)) 
+  if ((baro_alt_filtered >= alt_setpoint) || (mission_time_liftoff >= 8)) 
   {
-    servo_z.write(90);
+    servo_z.write((servo_z_offset + 70));
     NeoPixel_yellow();
     state++;
-  }
+  } 
 }
 
 /*
@@ -137,8 +137,8 @@ void detect_landing(double dt)
   // Time since parachutes deployed
   mission_time_descent += dt;
 
-  // Wait 10 seconds since descent is detected
-  if (mission_time_descent >= 10) 
+  // Wait 60 seconds since descent is detected
+  if (mission_time_descent >= 60) 
   {
     NeoPixel_white();
     state++;
@@ -179,7 +179,7 @@ void setup()
   // Initialization functions
   sensors_init();
 
-  dataFile = SD.open("datalog.txt", FILE_WRITE);
+  dataFile = SD.open("datalog_tarc_r1", FILE_WRITE);
 
   // Check if the file opened successfully
   if (dataFile) {
