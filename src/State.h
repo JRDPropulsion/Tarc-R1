@@ -7,56 +7,93 @@
 
 // Importing libraries
 #include <Arduino.h>
+#include <Servo.h>
 #include <Sensors.h>
 #include <Config.h>
-#include <NeoPixel.h>
 
-double acc_1, acc_2, acc_3, acc_4, 
-       acc_5, acc_6, acc_7, acc_8, 
-       acc_9, acc_avg_1, acc_avg_2, 
-       acc_avg_3, acc_mov;
+float alt_max, alt, digitCount;
+unsigned long previousTime = 0;  // Variable to store the previous time
+unsigned long delayTime = 10;  // Delay time in milliseconds
+Servo servo_z;
 
 /*
-  Detect that the vehicle is ascending using a moving average of acceleration
+  Deploy parachute
 */
-void ascent_detect() 
+void deploy_parachute(double baro_alt_filtered) 
 {
-  acc_1 = body_acc_z;
-  delay(1);
-  acc_2 = body_acc_z;
-  delay(1);
-  acc_3 = body_acc_z;
-
-  acc_avg_1 = (acc_1 + acc_2 + acc_3) / 3; // average of 3 acceleration values
-  delay(5);
-
-  acc_4 = body_acc_z;
-  delay(1);
-  acc_5 = body_acc_z;
-  delay(1);
-  acc_6 = body_acc_z;
-
-  acc_avg_2 = (acc_4 + acc_5 + acc_6) / 3; // average of 3 acceleration values
-  delay(5);
-
-  acc_7 = body_acc_z;
-  delay(1);
-  acc_8 = body_acc_z;
-  delay(1);
-  acc_9 = body_acc_z;
-
-  acc_avg_3 = (acc_7 + acc_8 + acc_9) / 3; // average of 3 acceleration values
-  delay(5);
-
-  // Determine the moving average of the z-axis acceleration
-  acc_mov = (acc_avg_1 + acc_avg_2 + acc_avg_3) / 3;
-
-  if (abs(acc_mov) > ascent_threshold) 
+  if ((baro_alt_filtered >= alt_setpoint) || (mission_time_liftoff >= 6)) 
   {
-    // Indicate the state
-    NeoPixel_blue();
+    servo_z.write((servo_z_offset + 70));
+    digitalWrite(LED_BUILTIN, HIGH);
+    state++;
+  } 
+}
+
+/*
+  Detect that the vehicle has landed
+*/
+void detect_landing(double dt) 
+{
+  // Time since parachutes deployed
+  mission_time_descent += dt;
+
+  // Wait 120 seconds since descent is detected
+  if (mission_time_descent >= 120) 
+  {
     state++;
   }
+}
+
+/*
+  Detect apogee
+*/
+void max_altitude() {
+
+  // alt_max can only increase but never decrease
+  if (millis() - previousTime >= delayTime) {
+    previousTime = millis();  // Update the previous time
+
+    alt = baro_alt_filtered;
+
+    // Update alt_max to the current altitude if it's higher
+    if (alt > alt_max) {
+      alt_max = alt;
+    }
+  }
+}
+
+/*
+  Break up maximum altitude into 3 digits
+*/
+void printAltBlink(int x) {
+  
+  if (x >= 10) {
+    printAltBlink(x / 10);
+  }
+
+  // Digit is remainder of max altitude when divided by 10
+  int digit = x % 10;
+
+  for (int i = 0; i < digit; i++) {
+    digitalWrite(PIN_LED3, LOW); // Anode
+    delay(300);
+    digitalWrite(PIN_LED3, HIGH);
+    delay(300);
+  }
+
+  delay(1000);
+}
+
+/*
+  Display altitude
+*/
+void blinkLED(int x) {
+
+  // Maximum altitude no decimal
+  int digitAll = round(x); // get rid of decimal
+
+  printAltBlink(digitAll);
+  delay(2000); // Long pause
 }
 
 #endif

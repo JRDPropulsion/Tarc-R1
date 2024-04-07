@@ -9,25 +9,20 @@
 #include <Arduino.h>
 
 // Pins
-int NeoPixel = 1; 
-int servo_z_pin = 2;
-int servo_y_pin = 5;
-int servo_1_pin = 0;
-int chip_select = 10;
+int servo_z_pin = 1;
+int chip_select = 2;
 
 // Time
+double mission_time;
 double mission_time_liftoff;
 double mission_time_descent;
-double mission_time;
-double dt = 0;
+double dt;
 
 // Servo
 int servo_z_offset = 100; //using this
-int servo_y_offset = 110;
 
 // Setpoints
 int state = 0; // Make sure that this value is 0 before launch
-float ascent_threshold = 11.2; // DO NOT CHANGE
-float alt_setpoint = 234; // In meters (240 for last flight)
+float alt_setpoint = 225; // In meters (240 for flight 1), set to 225 for flight 7
 
 #endif
