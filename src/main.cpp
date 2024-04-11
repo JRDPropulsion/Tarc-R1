@@ -40,7 +40,7 @@ void time_keeper()
   mission_time += dt; // Calculate the elapsed time since startup
 
   // If current altitude is greater than 8 meters, we have liftoff!
-  if (baro_alt_filtered >= 8) {
+  if (baro_alt_filtered >= 7) {
     mission_time_liftoff += dt;
   }
 }
@@ -155,11 +155,10 @@ void setup()
 */
 void loop() 
 {
-  max_altitude();
-
   // Update functions that run no matter what:
   time_keeper();
   sensors_update();
+  max_altitude();
 
   // Calibration state 0
   if (state == 0) 

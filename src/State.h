@@ -87,7 +87,7 @@ void printAltBlink(int x) {
 /*
   Display altitude
 */
-void blinkLED(int x) {
+void blinkLED(float x) {
 
   // Maximum altitude no decimal
   int digitAll = round(x); // get rid of decimal
